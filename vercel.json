@@ -1,0 +1,41 @@
+{
+  "headers": [
+    // 1. Ensures compressed files (ending in .br) are correctly decoded by the browser
+    {
+      "source": "/(.*)\\.br",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "br"
+        }
+      ]
+    },
+    // 2. Ensures the WebAssembly file is served with the correct MIME type
+    {
+      "source": "/(.*)\\.wasm\\.br",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/wasm"
+        }
+      ]
+    },
+    // 3. Ensures the data file is served correctly
+    {
+      "source": "/(.*)\\.data\\.br",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    // 4. THE PROXY FIX: Routes your secure Vercel request to your insecure AWS backend
+    {
+      "source": "/api-proxy/:path*",
+      "destination": "http://3.231.201.150:5036/api/:path*"
+    }
+  ]
+}
