@@ -1,0 +1,37 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)\\.br",
+      "headers": [
+        {
+          "key": "Content-Encoding",
+          "value": "br"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.wasm\\.br",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/wasm"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.data\\.br",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api-proxy/:path*",
+      "destination": "http://3.231.201.150:5036/api/:path*"
+    }
+  ]
+}
