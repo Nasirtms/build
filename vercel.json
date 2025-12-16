@@ -1,6 +1,5 @@
 {
   "headers": [
-    // --- Start of Header 1: General .br files ---
     {
       "source": "/(.*)\\.br",
       "headers": [
@@ -10,7 +9,6 @@
         }
       ]
     },
-    // --- Start of Header 2: .wasm.br files (Requires comma before next header) ---
     {
       "source": "/(.*)\\.wasm\\.br",
       "headers": [
@@ -20,7 +18,6 @@
         }
       ]
     },
-    // --- Start of Header 3: .data.br files (NO comma here, as it's the last item in the "headers" array) ---
     {
       "source": "/(.*)\\.data\\.br",
       "headers": [
@@ -30,15 +27,11 @@
         }
       ]
     }
-    // --- End of "headers" array ---
   ],
-  // --- IMPORTANT: Comma separating the "headers" object from the "rewrites" object ---
   "rewrites": [
-    // --- Start of Rewrite 1: The Proxy Fix ---
     {
       "source": "/api-proxy/:path*",
       "destination": "http://3.231.201.150:5036/api/:path*"
     }
-    // --- NO comma here, as it's the last item in the "rewrites" array ---
   ]
 }
