@@ -812,9 +812,9 @@ function onLogoutCompletedFromUnity() {
     var cacheBuster = "?v=" + Date.now();
     
     var config = {
-      dataUrl: buildUrl + "/Builds.data" + cacheBuster,
-      frameworkUrl: buildUrl + "/Builds.framework.js" + cacheBuster,
-      codeUrl: buildUrl + "/Builds.wasm" + cacheBuster,
+      dataUrl: buildUrl + "Builds.data.unityweb",
+      frameworkUrl: buildUrl + "/Builds.framework.js.unityweb",
+      codeUrl: buildUrl + "/Builds.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "DefaultCompany",
       productName: "CasinoGame",
