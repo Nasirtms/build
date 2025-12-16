@@ -1,0 +1,7 @@
+# Unity Generated Files
+# ... other Unity ignores ...
+
+# Ignore the large build files for Git LFS setup (see Step 3)
+# The files generated will have .data.br and .wasm.br suffixes.
+*.data.br
+*.wasm.br
