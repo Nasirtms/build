@@ -1,5 +1,6 @@
 <linker>
   <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="AdjustTransformByScreenWidth" preserve="all" />
     <type fullname="AnimationParticleTrigger" preserve="all" />
     <type fullname="AtomicMeltdownAutoSpinController" preserve="all" />
     <type fullname="AtomicMeltdownBetController" preserve="all" />
@@ -97,7 +98,10 @@
     <type fullname="FishSpawner" preserve="all" />
     <type fullname="FlameComboAutoSpinController" preserve="all" />
     <type fullname="FlameComboBetController" preserve="all" />
+    <type fullname="FlameComboFreeGameTransitionController" preserve="all" />
+    <type fullname="FlameComboFreeSpinController" preserve="all" />
     <type fullname="FlameComboGameSettings" preserve="all" />
+    <type fullname="FlameComboPaylineController" preserve="all" />
     <type fullname="FlameComboReelScript" preserve="all" />
     <type fullname="FlameComboRulesPopupController" preserve="all" />
     <type fullname="FlameComboSlotMachine" preserve="all" />
@@ -489,6 +493,7 @@
     <type fullname="CrazySevenPaylineData" preserve="nothing" serialized="true" />
     <type fullname="FlameComboSlotResource" preserve="nothing" serialized="true" />
     <type fullname="FlameComboSpinSettings" preserve="nothing" serialized="true" />
+    <type fullname="FlameComboPaylineData" preserve="nothing" serialized="true" />
     <type fullname="BiggerBassBonanzaSlotResource" preserve="nothing" serialized="true" />
     <type fullname="BiggerBassBonanzaSlotSettings" preserve="nothing" serialized="true" />
     <type fullname="BiggerBassBonanzaSoundItem" preserve="nothing" serialized="true" />
