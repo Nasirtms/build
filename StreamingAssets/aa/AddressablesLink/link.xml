@@ -20,14 +20,39 @@
     <type fullname="Backend_RPS" preserve="all" />
     <type fullname="BackgroundHandler" preserve="all" />
     <type fullname="BetManager_RPS" preserve="all" />
+    <type fullname="BiggerBassBonanzaAutoSpinController" preserve="all" />
+    <type fullname="BiggerBassBonanzaBetController" preserve="all" />
+    <type fullname="BiggerBassBonanzaFreeGameTransitionController" preserve="all" />
+    <type fullname="BiggerBassBonanzaFreeSpinController" preserve="all" />
     <type fullname="BiggerBassBonanzaGameSettings" preserve="all" />
+    <type fullname="BiggerBassBonanzaPaylineController" preserve="all" />
+    <type fullname="BiggerBassBonanzaReelScript" preserve="all" />
+    <type fullname="BiggerBassBonanzaRulesPopupController" preserve="all" />
+    <type fullname="BiggerBassBonanzaSlotMachine" preserve="all" />
     <type fullname="BiggerBassBonanzaSlotScript" preserve="all" />
+    <type fullname="BiggerBassBonanzaSoundManager" preserve="all" />
+    <type fullname="BiggerBassBonanzaUIButtonController" preserve="all" />
+    <type fullname="BiggerBassBonanzaUIManager" preserve="all" />
     <type fullname="BonusFishController" preserve="all" />
     <type fullname="BotController" preserve="all" />
     <type fullname="BotManager" preserve="all" />
     <type fullname="Bullet" preserve="all" />
     <type fullname="BulletPool" preserve="all" />
     <type fullname="CartoonFX.CFXR_Effect" preserve="all" />
+    <type fullname="CashMachineAutoSpinController" preserve="all" />
+    <type fullname="CashMachineBetController" preserve="all" />
+    <type fullname="CashMachineFreeGameTransitionController" preserve="all" />
+    <type fullname="CashMachineFreeSpinController" preserve="all" />
+    <type fullname="CashMachineGameSettings" preserve="all" />
+    <type fullname="CashMachinePaylineController" preserve="all" />
+    <type fullname="CashMachineReelScript" preserve="all" />
+    <type fullname="CashMachineRulesPopupController" preserve="all" />
+    <type fullname="CashMachineSlotMachine" preserve="all" />
+    <type fullname="CashMachineSlotScript" preserve="all" />
+    <type fullname="CashMachineSoundManager" preserve="all" />
+    <type fullname="CashMachineSpinButton" preserve="all" />
+    <type fullname="CashMachineUIButtonController" preserve="all" />
+    <type fullname="CashMachineUIManager" preserve="all" />
     <type fullname="ChilliMultiplyerUI" preserve="all" />
     <type fullname="CleopatraAutoSpinController" preserve="all" />
     <type fullname="CleopatraBetController" preserve="all" />
@@ -466,6 +491,10 @@
     <type fullname="FruitSlotPaylineData" preserve="nothing" serialized="true" />
     <type fullname="OctagonKenoGameSettings/SoundItem" preserve="nothing" serialized="true" />
     <type fullname="OctagonKeno/OctagonKenoResponse" preserve="nothing" serialized="true" />
+    <type fullname="CashMachineSlotResource" preserve="nothing" serialized="true" />
+    <type fullname="CashMachineSoundItem" preserve="nothing" serialized="true" />
+    <type fullname="CashMachineSpinSettings" preserve="nothing" serialized="true" />
+    <type fullname="CashMachinePaylineData" preserve="nothing" serialized="true" />
     <type fullname="QuickHitVolcanoSlotResource" preserve="nothing" serialized="true" />
     <type fullname="QuickHitVolcanoSoundItem" preserve="nothing" serialized="true" />
     <type fullname="QuickHitVolcanoSpinSettings" preserve="nothing" serialized="true" />
@@ -499,6 +528,8 @@
     <type fullname="BiggerBassBonanzaSoundItem" preserve="nothing" serialized="true" />
     <type fullname="BiggerBassBonanzaSpinSettings" preserve="nothing" serialized="true" />
     <type fullname="CartoonFX.CFXR_Effect/CameraShake" preserve="nothing" serialized="true" />
+    <type fullname="BiggerBassBonanzaPaylineData" preserve="nothing" serialized="true" />
+    <type fullname="BiggerBassBonanzaSpinResult" preserve="nothing" serialized="true" />
     <type fullname="StarBurstSlotsSlotResource" preserve="nothing" serialized="true" />
     <type fullname="StarBurstSlotsSoundItem" preserve="nothing" serialized="true" />
     <type fullname="StarBurstSlotsSpinSettings" preserve="nothing" serialized="true" />
