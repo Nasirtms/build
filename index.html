@@ -1,131 +1,1216 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Mega Vault</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-  </head>
-  <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Mega Vault</div>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover">
+  <title>Mega Vault</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <style>
+    /* Body and container styling to prevent white/black bars */
+    body {
+      background: #000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    
+    #unity-container {
+      background: #000 !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      min-height: 100vh !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    #unity-canvas {
+      background: #000 !important;
+      display: block !important;
+    }
+    
+    /* Loading bar styling */
+    #unity-loading-bar {
+      background: #000 !important;
+    }
+    
+    /* Override Unity mobile footer hiding for fullscreen button */
+    .unity-mobile #unity-footer {
+      display: block !important;
+      position: fixed !important;
+      top: 10px !important;
+      right: 10px !important;
+      z-index: 1001 !important;
+    }
+    
+    .unity-mobile #unity-fullscreen-button {
+      display: block !important;
+      width: 28px !important;
+      height: 28px !important;
+      background: rgba(0,0,0,0.7) !important;
+      border-radius: 8px !important;
+      border: 1px solid white !important;
+      cursor: pointer !important;
+      float: none !important;
+      position: relative !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .unity-mobile #unity-fullscreen-button:before {
+      content: "⛶" !important;
+      color: white !important;
+      font-size: 14px !important;
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    /* Fullscreen mode styling */
+    .unity-mobile #unity-fullscreen-button.fullscreen-mode {
+      width: 28px !important;
+      height: 28px !important;
+      background: rgba(255,255,255,0.2) !important;
+      border: 1px solid rgba(255,255,255,0.5) !important;
+    }
+    
+    .unity-mobile #unity-fullscreen-button.fullscreen-mode:before {
+      content: "✕" !important;
+      font-size: 14px !important;
+    }
+    
+    /* Hide Unity warning banner */
+    #unity-warning {
+      display: none !important;
+    }
+    
+    /* Hide fullscreen button on iPhones */
+    @media only screen and (max-device-width: 812px) and (-webkit-device-pixel-ratio: 3),
+           only screen and (max-device-width: 896px) and (-webkit-device-pixel-ratio: 2),
+           only screen and (max-device-width: 1024px) and (-webkit-device-pixel-ratio: 2) {
+      .unity-mobile #unity-footer {
+        display: none !important;
+      }
+      
+      .unity-mobile #unity-fullscreen-button {
+        display: none !important;
+      }
+    }
+
+    /* Hide fullscreen button on desktop - always hidden */
+    .unity-desktop #unity-fullscreen-button {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+    
+    /* Hide fullscreen button by default until login on mobile - override Unity's default CSS */
+    .unity-mobile #unity-fullscreen-button {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+    }
+    
+    /* Show fullscreen button only when logged in on mobile */
+    .unity-mobile #unity-fullscreen-button.logged-in {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    
+    /* Rotate overlay - ensure it's always on top */
+    #rotate-device {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      background: #000 !important;
+      color: white !important;
+      display: none !important;
+      justify-content: center !important;
+      align-items: center !important;
+      text-align: center !important;
+      font-size: 20px !important;
+      z-index: 99999 !important; /* Higher than everything else */
+    }
+    
+    #rotate-device.show {
+      display: flex !important;
+    }
+    
+    /* Mobile-specific canvas styling - fixed height using full viewport */
+    .unity-mobile #unity-canvas {
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      max-width: 100vw !important;
+      max-height: calc(var(--vh, 1vh) * 100) !important;
+      min-height: calc(var(--vh, 1vh) * 100) !important;
+      display: block !important;
+      object-fit: contain !important;
+      position: relative !important;
+    }
+    
+    /* Mobile container - fixed height using full viewport */
+    .unity-mobile #unity-container {
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      min-height: calc(var(--vh, 1vh) * 100) !important;
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    
+    /* Mobile body styling - fixed height using --vh */
+    .unity-mobile body {
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      min-height: calc(var(--vh, 1vh) * 100) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+    }
+    
+    /* Mobile html styling - fixed height using --vh */
+    .unity-mobile html {
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+      min-height: calc(var(--vh, 1vh) * 100) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    
+    
+    /* Fullscreen mode - fixed height using --vh */
+    .unity-mobile.fullscreen #unity-container {
+      overflow: hidden !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+    }
+    
+    .unity-mobile.fullscreen #unity-canvas {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+    }
+    
+    .unity-mobile.fullscreen body {
+      overflow: hidden !important;
+      position: fixed !important;
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+    }
+    
+    .unity-mobile.fullscreen html {
+      overflow: hidden !important;
+      width: 100vw !important;
+      height: calc(var(--vh, 1vh) * 100) !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
       </div>
     </div>
-    <script>
+    <div id="unity-warning"> </div>
+    <div id="unity-footer">
+      <div id="unity-fullscreen-button"></div>
+    </div>
+  </div>
 
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+  <!-- Rotate overlay -->
+  <div id="rotate-device">
+    Please rotate your device to landscape to play.
+  </div>
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+  <!-- Hidden input for keyboard triggering in fullscreen -->
+  <input id="keyboard-trigger" type="text" style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;" />
+  
+  <!-- Mobile keyboard trigger overlay -->
+  <div id="mobile-keyboard-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: calc(var(--vh, 1vh) * 100); z-index: 1000; display: none; background: transparent;">
+    <input id="mobile-keyboard-input" type="text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 1px; height: 1px; opacity: 0; border: none; outline: none;" />
+  </div>
+
+  <script>
+
+    var container = document.querySelector("#unity-container");
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingBar = document.querySelector("#unity-loading-bar");
+    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+    var warningBanner = document.querySelector("#unity-warning");
+    var rotateOverlay = document.getElementById("rotate-device");
+    var keyboardTrigger = document.getElementById("keyboard-trigger");
+    var mobileKeyboardOverlay = document.getElementById("mobile-keyboard-overlay");
+    var mobileKeyboardInput = document.getElementById("mobile-keyboard-input");
+
+    // Function to set the CSS custom property --vh for mobile viewport height
+    function setViewportHeight() {
+      var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // For mobile, use full viewport height
+        var vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+        
+        // Debug logging for mobile
+        console.log('Mobile viewport height calculation:');
+        console.log('window.innerHeight:', window.innerHeight);
+        console.log('Calculated --vh:', vh + 'px');
+        console.log('Canvas height will be:', (vh * 100) + 'px');
+        
+        // Also set a fallback using visual viewport API if available
+        if (window.visualViewport) {
+          var visualVh = window.visualViewport.height * 0.01;
+          document.documentElement.style.setProperty('--vh', visualVh + 'px');
+          console.log('Visual viewport height:', window.visualViewport.height);
+          console.log('Visual --vh:', visualVh + 'px');
         }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
-
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/07112025.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/07112025.data",
-        frameworkUrl: buildUrl + "/07112025.framework.js",
-        codeUrl: buildUrl + "/07112025.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Mega Vault",
-        productVersion: "0.0.1",
-        showBanner: unityShowBanner,
-      };
-
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        container.className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-
-        canvas.style.width = "1920px";
-        canvas.style.height = "1080px";
+        // For desktop, use full innerHeight
+        var vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
       }
+    }
 
-      loadingBar.style.display = "block";
+    // Set initial viewport height
+    setViewportHeight();
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-                fullscreenButton.onclick = () => {
-                  document.makeFullscreen('unity-container');
-                };
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+    // Update viewport height on resize and orientation change
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+    
+    // Add visual viewport listener for better mobile support
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', setViewportHeight);
+    }
+    
+    // Additional mobile-specific events
+    var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      // Listen for scroll events that might indicate browser UI changes
+      window.addEventListener('scroll', function() {
+        setTimeout(setViewportHeight, 100);
+      });
+      
+      // Listen for touch events that might trigger browser UI changes
+      document.addEventListener('touchstart', function() {
+        setTimeout(setViewportHeight, 200);
+      });
+    }
 
-      document.body.appendChild(script);
+    // Force hide fullscreen button immediately
+    if (fullscreenButton) {
+      fullscreenButton.style.display = 'none';
+      fullscreenButton.style.visibility = 'hidden';
+      fullscreenButton.style.opacity = '0';
+    }
 
-    </script>
-  </body>
+    // iOS detection
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    // Login state management
+    var isLoggedIn = false;
+
+    // Function to handle login status from Unity
+    function onLoginStatusChanged(isSuccess) {
+      // Handle both boolean and string parameters
+      isLoggedIn = (isSuccess === true || isSuccess === "true" || isSuccess === "True");
+      
+      // Clear token if logout
+      if (!isLoggedIn) {
+        clearStoredToken();
+        console.log('Token cleared due to logout');
+      }
+      
+      updateFullscreenButtonVisibility();
+      console.log('Login status changed:', isLoggedIn ? 'Success' : 'Failed');
+      console.log('Fullscreen button should now be:', isLoggedIn ? 'visible' : 'hidden');
+    }
+
+    // Function to update fullscreen button visibility based on login status
+    function updateFullscreenButtonVisibility() {
+      console.log('updateFullscreenButtonVisibility called - isLoggedIn:', isLoggedIn, 'isIOS:', isIOS);
+      
+      if (isLoggedIn) {
+        // Show fullscreen button when logged in (except on iOS)
+        if (!isIOS) {
+          fullscreenButton.classList.add('logged-in');
+          console.log('Fullscreen button ENABLED - user is logged in');
+          console.log('Button classes:', fullscreenButton.className);
+        } else {
+          fullscreenButton.classList.remove('logged-in');
+          console.log('Fullscreen button DISABLED - iOS device');
+        }
+      } else {
+        // Hide fullscreen button when not logged in
+        fullscreenButton.classList.remove('logged-in');
+        console.log('Fullscreen button DISABLED - user is not logged in');
+      }
+    }
+
+    // Function to show mobile keypad - called from Unity
+    function showMobileKeypad() {
+      var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        console.log('Showing mobile keypad...');
+        
+        // Check if we're in fullscreen mode
+        var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                             document.mozFullScreenElement || document.msFullscreenElement);
+        
+        // Check for iOS fallback fullscreen mode
+        var isIOSFallbackFullscreen = isIOS && container.style.position === 'fixed' && 
+                                    container.style.width === '100vw' && 
+                                    container.style.height === '100vh';
+        
+        if (isFullscreen || isIOSFallbackFullscreen) {
+          // In fullscreen mode - use mobile keyboard overlay
+          mobileKeyboardOverlay.style.display = "block";
+          setTimeout(() => {
+            mobileKeyboardInput.focus();
+            mobileKeyboardInput.click();
+            mobileKeyboardInput.setSelectionRange(0, 0);
+          }, 100);
+        } else {
+          // In windowed mode - focus canvas to trigger keypad
+          canvas.focus();
+          setTimeout(() => {
+            // Also try the hidden input method
+            keyboardTrigger.focus();
+            keyboardTrigger.click();
+          }, 100);
+        }
+      }
+    }
+
+    // Function to exit fullscreen if currently active (mobile only)
+    function exitFullscreenIfActive() {
+      var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (!isMobile) {
+        console.log('exitFullscreenIfActive: Not a mobile device, ignoring call');
+        return;
+      }
+      
+      console.log('exitFullscreenIfActive: Checking for active fullscreen...');
+      
+      // Check for standard fullscreen
+      var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                           document.mozFullScreenElement || document.msFullscreenElement);
+      
+      // Check for iOS fallback fullscreen mode
+      var isIOSFallbackFullscreen = isIOS && container.style.position === 'fixed' && 
+                                  container.style.width === '100vw' && 
+                                  container.style.height === '100vh';
+      
+      if (isFullscreen) {
+        console.log('exitFullscreenIfActive: Exiting standard fullscreen...');
+        // Exit standard fullscreen
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
+      } else if (isIOSFallbackFullscreen) {
+        console.log('exitFullscreenIfActive: Exiting iOS fallback fullscreen...');
+        // Exit iOS fallback fullscreen (reset styles)
+        container.style.position = "";
+        container.style.top = "";
+        container.style.left = "";
+        container.style.width = "";
+        container.style.height = "";
+        container.style.zIndex = "";
+        container.style.backgroundColor = "";
+        fullscreenButton.classList.remove("fullscreen-mode");
+        
+        // Remove fullscreen classes
+        container.classList.remove('fullscreen');
+        document.body.classList.remove('fullscreen');
+        document.documentElement.classList.remove('fullscreen');
+        
+        // Hide mobile keyboard overlay
+        mobileKeyboardOverlay.style.display = "none";
+      } else {
+        console.log('exitFullscreenIfActive: No fullscreen mode active');
+      }
+      
+      // Restore focus to canvas after exiting fullscreen
+      setTimeout(() => {
+        canvas.focus();
+      }, 100);
+    }
+
+
+// Logout from Unity when the browser is closed
+function triggerLogoutFromBrowser() {
+    console.log("⚠ Browser close detected — calling logout API and Unity logout...");
+    
+    // Call logout API with stored token BEFORE clearing it
+    callLogoutAPI();
+    
+    // Always clear stored token when tab is closed
+    clearStoredToken();
+
+    // Try to notify Unity if it's loaded
+    try {
+        if (typeof window.unityInstance !== "undefined" && window.unityInstance) {
+            window.unityInstance.SendMessage("JSInputHandler", "LogoutDueToBrowserExit");
+        } else if (typeof unityInstance !== "undefined" && unityInstance) {
+            unityInstance.SendMessage("JSInputHandler", "LogoutDueToBrowserExit");
+        }
+    } catch (e) {
+        console.log("Unity instance not available for logout notification:", e);
+    }
+}
+
+// Handle tab close/window close events (most reliable for desktop)
+window.addEventListener("beforeunload", function () {
+    triggerLogoutFromBrowser();
+});
+
+// Handle page hide (more reliable for mobile browsers - fires when page is actually unloaded)
+window.addEventListener("pagehide", function (e) {
+    // Only trigger if page is not being cached (actually closing)
+    if (!e.persisted) {
+        triggerLogoutFromBrowser();
+    }
+});
+
+function onLogoutCompletedFromUnity() {
+    console.log("✅ Logout complete from Unity");
+}
+
+
+
+    // Function to clear Unity cache
+    function clearUnityCache() {
+      if (window.unityInstance && window.unityInstance.Module && window.unityInstance.Module.UnityCache) {
+        window.unityInstance.Module.UnityCache.destroyInstance().then(() => {
+          console.log('Unity cache cleared successfully');
+          // Reload the page to start fresh
+          window.location.reload();
+        }).catch((error) => {
+          console.error('Failed to clear Unity cache:', error);
+        });
+      } else {
+        // Fallback: clear browser cache and reload
+        if ('caches' in window) {
+          caches.keys().then((names) => {
+            names.forEach((name) => {
+              if (name.includes('UnityCache') || name.includes('CasinoGame')) {
+                caches.delete(name);
+              }
+            });
+            console.log('Browser cache cleared, reloading...');
+            window.location.reload();
+          });
+        } else {
+          console.log('Cache clearing not supported, reloading...');
+          window.location.reload();
+        }
+      }
+    }
+
+    // Encryption/Decryption functions for token storage
+    // Simple XOR cipher with a key for obfuscation
+    var TOKEN_ENCRYPTION_KEY = 'MegaVault2025!@#TokenKey'; // Change this to your own key
+    
+    function encryptToken(token) {
+      if (!token) return '';
+      try {
+        var encrypted = '';
+        for (var i = 0; i < token.length; i++) {
+          var keyChar = TOKEN_ENCRYPTION_KEY[i % TOKEN_ENCRYPTION_KEY.length];
+          var encryptedChar = String.fromCharCode(token.charCodeAt(i) ^ keyChar.charCodeAt(0));
+          encrypted += encryptedChar;
+        }
+        // Base64 encode for safe storage
+        return btoa(encrypted);
+      } catch (e) {
+        console.error('Encryption error:', e);
+        return '';
+      }
+    }
+    
+    function decryptToken(encryptedToken) {
+      if (!encryptedToken) return '';
+      try {
+        // Base64 decode first
+        var encrypted = atob(encryptedToken);
+        var decrypted = '';
+        for (var i = 0; i < encrypted.length; i++) {
+          var keyChar = TOKEN_ENCRYPTION_KEY[i % TOKEN_ENCRYPTION_KEY.length];
+          var decryptedChar = String.fromCharCode(encrypted.charCodeAt(i) ^ keyChar.charCodeAt(0));
+          decrypted += decryptedChar;
+        }
+        return decrypted;
+      } catch (e) {
+        console.error('Decryption error:', e);
+        return '';
+      }
+    }
+    
+    // Function to store encrypted token
+    function storeEncryptedToken(token) {
+      if (token && token !== '') {
+        try {
+          var encryptedToken = encryptToken(token);
+          localStorage.setItem('unityTokenEncrypted', encryptedToken);
+          localStorage.setItem('unityTokenTimestamp', Date.now().toString());
+          console.log('Token encrypted and stored successfully');
+          return true;
+        } catch (e) {
+          console.error('Error storing encrypted token:', e);
+          return false;
+        }
+      } else {
+        console.warn('Empty or invalid token received');
+        return false;
+      }
+    }
+    
+    // Function to retrieve and decrypt token
+    function getStoredToken() {
+      try {
+        var encryptedToken = localStorage.getItem('unityTokenEncrypted');
+        if (encryptedToken) {
+          var decryptedToken = decryptToken(encryptedToken);
+          return decryptedToken;
+        }
+        return null;
+      } catch (e) {
+        console.error('Error retrieving token:', e);
+        return null;
+      }
+    }
+    
+    // Function to clear stored token
+    function clearStoredToken() {
+      try {
+        localStorage.removeItem('unityTokenEncrypted');
+        localStorage.removeItem('unityTokenTimestamp');
+        console.log('Stored token cleared');
+      } catch (e) {
+        console.error('Error clearing token:', e);
+      }
+    }
+    
+    // Function to receive token from Unity (updates every 5 seconds)
+    function onTokenReceived(token) {
+      console.log('Token received from Unity');
+      if (token && token !== '') {
+        var success = storeEncryptedToken(token);
+        if (success) {
+          console.log('Token encrypted and stored successfully');
+        }
+      } else {
+        console.warn('Empty or invalid token received');
+      }
+    }
+    
+    // Function to get current stored token (for external use)
+    function getToken() {
+      return getStoredToken();
+    }
+    
+    // API Configuration - Update this with your actual base URL
+    var API_BASE_URL = "{{baseUrl}}"; // This should be set by Unity or replace with actual URL
+    
+    // Function to set API base URL from Unity
+    function setApiBaseUrl(baseUrl) {
+      API_BASE_URL = baseUrl;
+      console.log('API Base URL set to:', baseUrl);
+    }
+    
+    // Function to call logout API with stored token
+    function callLogoutAPI() {
+      try {
+        var token = getStoredToken();
+        
+        if (!token || token === '') {
+          console.log('No token found, skipping logout API call');
+          return;
+        }
+        
+        if (!API_BASE_URL || API_BASE_URL === '{{baseUrl}}') {
+          console.warn('API Base URL not set, skipping logout API call');
+          return;
+        }
+        
+        var url = API_BASE_URL + '/api/auth/logout';
+        
+        // Prepare headers with Authorization token
+        var headers = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        };
+        
+        // Use fetch with keepalive for reliable delivery during page unload
+        // keepalive ensures the request continues even after page unloads
+        fetch(url, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({}),
+          keepalive: true // Critical: allows request to complete after page unload
+        }).then(function(response) {
+          console.log('Logout API called successfully, status:', response.status);
+        }).catch(function(err) {
+          console.log('Logout API call error (may be expected during page unload):', err);
+        });
+        
+        // Also try sendBeacon as backup (though it doesn't support custom headers well)
+        // This is a fallback if fetch fails
+        if (navigator.sendBeacon) {
+          try {
+            // sendBeacon with URL-encoded data (since it doesn't support headers well)
+            var beaconUrl = url + '?token=' + encodeURIComponent(token);
+            navigator.sendBeacon(beaconUrl);
+          } catch (beaconErr) {
+            // Ignore beacon errors, fetch is primary method
+          }
+        }
+      } catch (e) {
+        console.error('Error calling logout API:', e);
+      }
+    }
+
+    // Expose functions globally so Unity can call them
+    window.onLoginStatusChanged = onLoginStatusChanged;
+    window.showMobileKeypad = showMobileKeypad;
+    window.exitFullscreenIfActive = exitFullscreenIfActive;
+    window.clearUnityCache = clearUnityCache;
+    window.onTokenReceived = onTokenReceived;
+    window.getToken = getToken;
+    window.clearStoredToken = clearStoredToken;
+    window.setApiBaseUrl = setApiBaseUrl;
+
+    // Initialize fullscreen button as hidden
+    updateFullscreenButtonVisibility();
+    
+    // Additional force hide on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      fullscreenButton.style.display = 'none';
+      fullscreenButton.style.visibility = 'hidden';
+      fullscreenButton.style.opacity = '0';
+    });
+
+    // Shows a temporary message banner/ribbon for a few seconds, or
+    // a permanent error message on top of the canvas if type=='error'.
+    // If type=='warning', a yellow highlight color is used.
+    // Modify or remove this function to customize the visually presented
+    // way that non-critical warnings and error messages are presented to the
+    // user.
+    function unityShowBanner(msg, type) {
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+      }
+      var div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background: red; padding: 10px;';
+      else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function() {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
+
+    // Detect portrait vs landscape (only for mobile devices)
+    function checkOrientation() {
+      var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile && window.innerHeight > window.innerWidth) {
+        // Mobile portrait → show overlay (even in fullscreen)
+        rotateOverlay.classList.add("show");
+        container.style.visibility = "hidden";
+      } else {
+        // Desktop or mobile landscape → show game
+        rotateOverlay.classList.remove("show");
+        container.style.visibility = "visible";
+      }
+    }
+
+    // Add orientation change listeners
+    window.addEventListener("resize", checkOrientation);
+    window.addEventListener("orientationchange", checkOrientation);
+    
+    // Additional listener for visual viewport changes (helps with fullscreen transitions)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', checkOrientation);
+    }
+    
+    checkOrientation(); // run once on load
+    
+    // Add resize handler for responsive canvas
+    function resizeCanvas() {
+      if (!/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+        // Only for desktop
+        var screenWidth = window.innerWidth;
+        var screenHeight = window.innerHeight;
+        var aspectRatio = 16/9;
+        
+        var canvasWidth, canvasHeight;
+        
+        // Always try to fill the full height first, then adjust width to maintain aspect ratio
+        canvasHeight = screenHeight;
+        canvasWidth = canvasHeight * aspectRatio;
+        
+        // If width exceeds screen width, scale down based on width instead
+        if (canvasWidth > screenWidth) {
+          canvasWidth = screenWidth;
+          canvasHeight = canvasWidth / aspectRatio;
+        }
+        
+        // Apply maximum limits
+        canvasWidth = Math.min(canvasWidth, 1920);
+        canvasHeight = Math.min(canvasHeight, 1080);
+        
+        canvas.style.width = canvasWidth + "px";
+        canvas.style.height = canvasHeight + "px";
+        canvas.style.margin = "0 auto";
+        canvas.style.display = "block";
+      }
+    }
+    
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); // run once on load
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/Builds.loader.js";
+    
+    // Add cache-busting timestamp to force fresh downloads
+    var cacheBuster = "?v=" + Date.now();
+    
+    var config = {
+      dataUrl: buildUrl + "/Builds.data.unityweb",
+      frameworkUrl: buildUrl + "/Builds.framework.js.unityweb",
+      codeUrl: buildUrl + "/Builds.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "CasinoGame",
+      productVersion: "0.0.1",
+      showBanner: unityShowBanner,
+    };
+
+    // By default, Unity keeps WebGL canvas render target size matched with
+    // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+    // Set this to false if you want to decouple this synchronization from
+    // happening inside the engine, and you would instead like to size up
+    // the canvas DOM size and WebGL render target sizes yourself.
+    // config.matchWebGLToCanvasSize = false;
+
+    // If you would like all file writes inside Unity Application.persistentDataPath
+    // directory to automatically persist so that the contents are remembered when
+    // the user revisits the site the next time, uncomment the following line:
+    // config.autoSyncPersistentDataPath = true;
+    // This autosyncing is currently not the default behavior to avoid regressing
+    // existing user projects that might rely on the earlier manual
+    // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+    // expected to change.
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      // Mobile device style: fill the whole browser client area with the game canvas:
+      container.className = "unity-mobile";
+      canvas.className = "unity-mobile";
+      document.documentElement.className = "unity-mobile";
+      document.body.className = "unity-mobile";
+
+      // To lower canvas resolution on mobile devices to gain some
+      // performance, uncomment the following line:
+      // config.devicePixelRatio = 1;
+
+
+    } else {
+      // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+      // Responsive 16:9 aspect ratio that fits the screen
+      var screenWidth = window.innerWidth;
+      var screenHeight = window.innerHeight;
+      var aspectRatio = 16/9;
+      
+      var canvasWidth, canvasHeight;
+      
+      // Always try to fill the full height first, then adjust width to maintain aspect ratio
+      canvasHeight = screenHeight;
+      canvasWidth = canvasHeight * aspectRatio;
+      
+      // If width exceeds screen width, scale down based on width instead
+      if (canvasWidth > screenWidth) {
+        canvasWidth = screenWidth;
+        canvasHeight = canvasWidth / aspectRatio;
+      }
+      
+      // Apply maximum limits
+      canvasWidth = Math.min(canvasWidth, 1920);
+      canvasHeight = Math.min(canvasHeight, 1080);
+      
+      canvas.style.width = canvasWidth + "px";
+      canvas.style.height = canvasHeight + "px";
+      canvas.style.maxWidth = "100vw";
+      canvas.style.maxHeight = "100vh";
+      canvas.style.objectFit = "contain";
+      canvas.style.margin = "0 auto";
+      canvas.style.display = "block";
+    }
+
+    loadingBar.style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      console.log('Unity loader loaded, starting instance creation...');
+      var startTime = performance.now();
+      
+      createUnityInstance(canvas, config, (progress) => {
+        progressBarFull.style.width = 100 * progress + "%";
+        // console.log('Loading progress:', (progress * 100).toFixed(1) + '%');
+      }).then((unityInstance) => {
+        var loadTime = performance.now() - startTime;
+        console.log('Unity instance loaded in', loadTime.toFixed(2), 'ms');
+        loadingBar.style.display = "none";
+
+        // Store Unity instance globally for focus management
+        window.unityInstance = unityInstance;
+
+
+        // Force hide fullscreen button initially (before login)
+        fullscreenButton.classList.remove('logged-in');
+
+        // ✅ Windows browsers only: fullscreen on any click
+        var isWindows = /Win/i.test(navigator.platform) || /Windows/i.test(navigator.userAgent);
+        var isDesktop = !/Mobi|Android|iPhone/i.test(navigator.userAgent);
+        
+        if (isDesktop && isWindows) {
+          container.onclick = () => {
+            if (container.requestFullscreen) container.requestFullscreen();
+            else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+            else if (container.mozRequestFullScreen) container.mozRequestFullScreen();
+            else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            // Restore focus after fullscreen toggle
+            setTimeout(() => {
+              canvas.focus();
+            }, 100);
+          };
+        }
+        
+        // Mobile fullscreen handling
+        if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+          // ✅ Mobile: fullscreen button visibility controlled by login status
+          // Initially hidden until user logs in successfully
+          fullscreenButton.classList.remove('logged-in');
+          
+            // Fullscreen button click handler
+          function toggleFullscreen() {
+            var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                                 document.mozFullScreenElement || document.msFullscreenElement);
+            
+            // iOS-specific fullscreen handling
+if (isIOS) {
+  var isIOSFallbackFullscreen =
+    container.style.position === "fixed" &&
+    container.style.width === "100vw" &&
+    container.style.height === "100vh";
+
+  if (isIOSFallbackFullscreen) {
+    // Exit fake fullscreen (reset styles)
+    container.style.position = "";
+    container.style.top = "";
+    container.style.left = "";
+    container.style.width = "";
+    container.style.height = "";
+    container.style.zIndex = "";
+    container.style.backgroundColor = "";
+    fullscreenButton.classList.remove("fullscreen-mode");
+    
+    // Check orientation after exiting fullscreen
+    setTimeout(checkOrientation, 100);
+  } else {
+    // Enter fake fullscreen (simulate fullscreen)
+    container.style.position = "fixed";
+    container.style.top = "0";
+    container.style.left = "0";
+    container.style.width = "100vw";
+    container.style.height = "100vh";
+    container.style.zIndex = "9999";
+    container.style.backgroundColor = "#000";
+    fullscreenButton.classList.add("fullscreen-mode");
+
+    // Scale canvas properly
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    
+    // Check orientation after entering fullscreen
+    setTimeout(checkOrientation, 100);
+  }
+} else {
+  // Standard fullscreen for other devices
+  if (isFullscreen) {
+    // Exit fullscreen
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  } else {
+    // Enter fullscreen
+    if (container.requestFullscreen) container.requestFullscreen();
+    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+    else if (container.mozRequestFullScreen) container.mozRequestFullScreen();
+    else if (container.msRequestFullscreen) container.msRequestFullscreen();
+  }
+  
+  // Check orientation after fullscreen toggle
+  setTimeout(checkOrientation, 100);
+}
+
+            
+            setTimeout(() => {
+              canvas.focus();
+            }, 100);
+          }
+          
+          // iOS-specific fullscreen button handling (only if button is visible)
+          if (isIOS && fullscreenButton.style.display !== "none") {
+            fullscreenButton.addEventListener('touchstart', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleFullscreen();
+            }, { passive: false });
+            
+            fullscreenButton.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleFullscreen();
+            });
+          } else if (!isIOS) {
+            fullscreenButton.onclick = toggleFullscreen;
+          }
+          
+          // Ensure fullscreen button is hidden initially (before login)
+          fullscreenButton.classList.remove('logged-in');
+        }
+
+        // Handle fullscreen change events to restore focus
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+          // Small delay to ensure fullscreen transition is complete
+          setTimeout(() => {
+            // Check if we're in fullscreen mode
+            var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                                 document.mozFullScreenElement || document.msFullscreenElement);
+            
+            // Check for iOS fallback fullscreen mode
+            var isIOSFallbackFullscreen = isIOS && container.style.position === 'fixed' && 
+                                        container.style.width === '100vw' && 
+                                        container.style.height === '100vh';
+            
+            var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Update fullscreen button appearance
+            if (isFullscreen || isIOSFallbackFullscreen) {
+              fullscreenButton.classList.add('fullscreen-mode');
+            } else {
+              fullscreenButton.classList.remove('fullscreen-mode');
+            }
+            
+            // Handle mobile fullscreen toggle
+            if (isMobile) {
+              if (isFullscreen || isIOSFallbackFullscreen) {
+                // Entering fullscreen
+                container.classList.add('fullscreen');
+                document.body.classList.add('fullscreen');
+                document.documentElement.classList.add('fullscreen');
+              } else {
+                // Exiting fullscreen
+                container.classList.remove('fullscreen');
+                document.body.classList.remove('fullscreen');
+                document.documentElement.classList.remove('fullscreen');
+              }
+            }
+            
+            if ((isFullscreen || isIOSFallbackFullscreen) && isMobile) {
+              // Show mobile keyboard overlay in fullscreen on mobile
+              mobileKeyboardOverlay.style.display = "block";
+              // Try multiple methods to trigger keyboard
+              setTimeout(() => {
+                mobileKeyboardInput.focus();
+                mobileKeyboardInput.click();
+                mobileKeyboardInput.setSelectionRange(0, 0);
+              }, 100);
+            } else if (isFullscreen) {
+              // Desktop fullscreen - use hidden input
+              keyboardTrigger.focus();
+              canvas.focus();
+            } else {
+              // Windowed mode - hide mobile overlay and focus canvas
+              mobileKeyboardOverlay.style.display = "none";
+              // Reset iOS fallback styles
+              if (isIOS) {
+                container.style.position = '';
+                container.style.top = '';
+                container.style.left = '';
+                container.style.width = '';
+                container.style.height = '';
+                container.style.zIndex = '';
+                container.style.backgroundColor = '';
+              }
+              canvas.focus();
+            }
+            
+            // Force Unity to regain input focus
+            if (window.unityInstance && window.unityInstance.SendMessage) {
+              try {
+                window.unityInstance.SendMessage('GameManager', 'OnFocusChange', 'true');
+              } catch (e) {
+                // Ignore if GameManager doesn't exist
+              }
+            }
+            
+            // Check orientation after fullscreen change to ensure rotate overlay shows if needed
+            checkOrientation();
+          }, 300);
+        }
+
+        // Handle window focus events
+        window.addEventListener('focus', () => {
+          setTimeout(() => {
+            canvas.focus();
+          }, 100);
+        });
+
+        // Ensure canvas is focusable and handles touch events properly
+        canvas.setAttribute('tabindex', '0');
+        canvas.style.outline = 'none';
+
+        // Handle canvas click to ensure focus
+        canvas.addEventListener('click', () => {
+          canvas.focus();
+        });
+
+        // Handle touch events to ensure keyboard shows on mobile
+        canvas.addEventListener('touchstart', (e) => {
+          // Allow default behavior for input elements
+          if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            // Check if we're in fullscreen mode
+            var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                                 document.mozFullScreenElement || document.msFullscreenElement);
+            
+            // Check for iOS fallback fullscreen mode
+            var isIOSFallbackFullscreen = isIOS && container.style.position === 'fixed' && 
+                                        container.style.width === '100vw' && 
+                                        container.style.height === '100vh';
+            
+            var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if ((isFullscreen || isIOSFallbackFullscreen) && isMobile) {
+              // In fullscreen on mobile, trigger keyboard through overlay
+              mobileKeyboardInput.focus();
+              mobileKeyboardInput.click();
+              // Prevent default to avoid conflicts
+              e.preventDefault();
+            } else if (isFullscreen) {
+              // Desktop fullscreen
+              keyboardTrigger.focus();
+              e.preventDefault();
+            } else {
+              // In windowed mode, focus canvas normally
+              canvas.focus();
+            }
+          }
+        });
+
+        // Handle click events for keyboard triggering
+        canvas.addEventListener('click', (e) => {
+          var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                               document.mozFullScreenElement || document.msFullscreenElement);
+          
+          // Check for iOS fallback fullscreen mode
+          var isIOSFallbackFullscreen = isIOS && container.style.position === 'fixed' && 
+                                      container.style.width === '100vw' && 
+                                      container.style.height === '100vh';
+          
+          var isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          
+          if ((isFullscreen || isIOSFallbackFullscreen) && isMobile) {
+            // Mobile fullscreen - use overlay input
+            mobileKeyboardInput.focus();
+            mobileKeyboardInput.click();
+          } else if (isFullscreen) {
+            // Desktop fullscreen
+            keyboardTrigger.focus();
+          } else {
+            canvas.focus();
+          }
+        });
+
+        // Handle keyboard input from the hidden input
+        keyboardTrigger.addEventListener('input', (e) => {
+          // Forward the input to Unity (you may need to adjust this based on your Unity setup)
+          if (window.unityInstance && window.unityInstance.SendMessage) {
+            try {
+              window.unityInstance.SendMessage('GameManager', 'OnKeyboardInput', e.target.value);
+            } catch (err) {
+              // Ignore if GameManager doesn't exist or method doesn't exist
+            }
+          }
+          // Clear the input to avoid accumulation
+          e.target.value = '';
+        });
+
+        // Prevent the hidden input from interfering with Unity's input
+        keyboardTrigger.addEventListener('keydown', (e) => {
+          // Forward key events to Unity
+          if (window.unityInstance) {
+            // Unity will handle the key events
+            canvas.dispatchEvent(new KeyboardEvent('keydown', {
+              key: e.key,
+              code: e.code,
+              keyCode: e.keyCode,
+              which: e.which,
+              bubbles: true
+            }));
+          }
+        });
+
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+
+    document.body.appendChild(script);
+
+  </script>
+</body>
 </html>
